@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QueueLess – Smart Digital Queue</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f6fb;--card:#fff;--tx:#0f172a;--mu:#64748b;--ac:#6366f1;--ac2:#06b6d4;--bd:#e2e8f0;--g:#16a34a;--y:#d97706;--r:#dc2626}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1020;--card:#141b34;--tx:#e8ecf8;--mu:#8e9ac0;--bd:#26305a;--g:#4ade80;--y:#fbbf24;--r:#f87171}}
+:root[data-theme="dark"]{--bg:#0b1020;--card:#141b34;--tx:#e8ecf8;--mu:#8e9ac0;--bd:#26305a;--g:#4ade80;--y:#fbbf24;--r:#f87171}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 18px;background:color-mix(in srgb,var(--card) 85%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.logo{font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;margin-right:auto}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+button,select,input{font:inherit;color:var(--tx)}
+.tab,.btn{border:1px solid var(--bd);background:var(--card);padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+.tab.on,.btn.p{background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;border-color:transparent}
+.btn:hover,.tab:hover{transform:translateY(-1px)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.d{color:var(--r)}
+select,input{padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--card)}
+main{max-width:1050px;margin:0 auto;padding:20px 16px 60px}
+.hero{padding:28px 0 8px}.hero h1{font-size:clamp(30px,6vw,52px);line-height:1.05;margin:0 0 8px;letter-spacing:-1px}
+.hero p{color:var(--mu);margin:0;max-width:560px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));margin-top:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h3{margin:0 0 12px;font-size:15px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.row>*{flex:1;min-width:120px}
+.ticket{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border-radius:16px;padding:18px;position:relative;overflow:hidden}
+.ticket .big{font-size:52px;font-weight:800;letter-spacing:2px;line-height:1}
+.ticket small{opacity:.85}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;text-align:center}
+.stats b{display:block;font-size:22px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid currentColor}
+.G{color:var(--g)}.Y{color:var(--y)}.R{color:var(--r)}
+.note{padding:8px 10px;border-left:3px solid var(--ac);background:color-mix(in srgb,var(--ac) 8%,transparent);border-radius:6px;margin:6px 0;font-size:14px;animation:in .3s}
+.muted{color:var(--mu);font-size:13px}
+.ctr{border:1px solid var(--bd);border-radius:14px;padding:12px;margin:8px 0}
+.ctr b.t{font-size:26px}
+.ai{border:1px dashed var(--ac);background:color-mix(in srgb,var(--ac) 7%,transparent);border-radius:14px;padding:12px;margin-top:10px}
+.tv{background:#050816;color:#fff;border-radius:24px;padding:36px 20px;text-align:center}
+.tv .now{font-size:clamp(70px,18vw,170px);font-weight:900;letter-spacing:4px;line-height:1;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tv .pop{animation:pop .6s}@keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.tv .nx{display:flex;justify-content:center;gap:22px;font-size:clamp(22px,5vw,40px);font-weight:700;opacity:.85;flex-wrap:wrap}
+.bars{display:flex;align-items:flex-end;gap:4px;height:150px}
+.bars div{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(var(--ac),var(--ac2));opacity:.55;transition:.3s;position:relative}
+.bars div.cur{opacity:1}.bars div.pk{background:var(--r)}
+.axis{display:flex;gap:4px;font-size:10px;color:var(--mu)}.axis span{flex:1;text-align:center}
+.kpi{font-size:30px;font-weight:800}
+.empty{text-align:center;color:var(--mu);padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">⏱ QueueLess</span>
+  <nav id="nav"></nav>
+  <select id="svc" aria-label="Service"></select>
+  <button class="btn" id="th" title="Toggle theme">🌓</button>
+</header>
+<main id="app"></main>
+<script>
+const SV=[{id:'gen',n:'General Consultation',p:'A',b:6},{id:'lab',n:'Lab Reports',p:'B',b:4},{id:'pha',n:'Pharmacy',p:'C',b:3}];
+const PRI={regular:['Regular',0],elderly:['Elderly',4],access:['Accessibility needs',4],emergency:['Emergency',9]};
+const PAT=[2,2,2,2,3,5,12,28,52,78,92,100,85,62,70,80,72,55,38,24,14,8,4,2]; // typical hourly load
+const S={tok:[],seq:{A:41,B:0,C:0},clock:0,ctr:[{id:1,cur:null},{id:2,cur:null}],paused:false,hist:{gen:[6,7,5,8],lab:[4,5,4],pha:[3,3,4]},
+ notes:[],me:null,svc:'gen',view:'cust',auto:true,sent:{},audit:[],noshow:0,done:0,rec:null,lastNow:''};
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sv=id=>SV.find(x=>x.id===(id||S.svc));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const NAMES=['Aarav','Diya','Kiran','Meera','Rohit','Sana','Vikram','Ishaan','Anika','Tara','Neel','Priya'];
+
+function mk(svc,name,pri){const s=sv(svc);S.clock++;S.seq[s.p]++;
+ const t={id:S.clock,svc,num:s.p+'-'+String(S.seq[s.p]).padStart(3,'0'),name,pri,t:S.clock,st:'WAITING',ctr:null};S.tok.push(t);return t}
+function waiting(svc){return S.tok.filter(t=>t.svc===svc&&t.st==='WAITING').sort((a,b)=>(a.t-PRI[a.pri][1])-(b.t-PRI[b.pri][1]))} // priority bonus is capped => regulars never starve
+const avgSvc=svc=>{const h=S.hist[svc].slice(-10);return h.reduce((a,b)=>a+b,0)/h.length};
+function predict(t){ // wait-time model: ahead / counters * avg service * hour-load factor
+ const w=waiting(t.svc),ahead=Math.max(0,w.findIndex(x=>x.id===t.id));
+ const h=new Date().getHours(),load=1+(PAT[h]-50)/250,c=S.ctr.length;
+ const m=Math.round((ahead+0.5)/c*avgSvc(t.svc)*load);
+ return{ahead,m,lo:Math.max(1,Math.round(m*.8)),hi:Math.round(m*1.25)+1}}
+function congestion(svc){const n=waiting(svc).length/S.ctr.length,h=new Date().getHours(),nx=n*(PAT[(h+1)%24]/Math.max(PAT[h],8));
+ const lv=x=>x<4?['G','Normal','🟢']:x<8?['Y','Moderate','🟡']:['R','High','🔴'];return{now:lv(n),soon:lv(nx)}}
+function note(m){S.notes.unshift(m);S.notes=S.notes.slice(0,8)}
+function log(a){S.audit.unshift(new Date().toLocaleTimeString()+' · '+a);S.audit=S.audit.slice(0,6)}
+
+function callNext(c){if(S.paused||c.cur)return;const w=waiting(S.svc);if(!w.length)return;
+ const t=w[0];t.st='SERVING';t.ctr=c.id;c.cur=t;S.lastNow=t.num;log(`Counter ${c.id} called ${t.num}`);
+ if(S.me&&S.me.id===t.id)note(`🔔 It's your turn! ${t.num} → Counter ${c.id}`);watch()}
+function finish(c,st){const t=c.cur;if(!t)return;t.st=st;c.cur=null;
+ if(st==='DONE'){S.done++;S.hist[t.svc].push(sv(t.svc).b+Math.random()*3-1)}else S.noshow++;
+ log(`${t.num} ${st}`);watch()}
+function watch(){const t=S.me;if(!t||t.st!=='WAITING')return;const a=predict(t).ahead;
+ [5,3,1].forEach(k=>{if(a===k&&!S.sent[k]){S.sent[k]=1;note(`🔔 ${k} ${k>1?'people':'person'} ahead of ${t.num}`)}})}
+function recommend(){const sc=S.svc,w=waiting(sc).length,c=S.ctr.length,cur=w/c*avgSvc(sc);
+ if(c<4&&cur>20){const after=w/(c+1)*avgSvc(sc);S.rec={save:Math.round(cur-after),cur:Math.round(cur)}}else S.rec=null}
+
+function join(name,pri){const ex=S.tok.find(t=>t.svc===S.svc&&['WAITING','SERVING'].includes(t.st)&&S.me&&t.id===S.me.id);
+ if(ex)return alert('You already have an active token for this service.');
+ if(waiting(S.svc).length>=40)return alert('Queue is full.');
+ S.me=mk(S.svc,name||'You',pri);S.sent={};note(`✅ Joined queue · token ${S.me.num}`);render()}
+
+function nav(){const T=[['cust','🎟 Customer'],['staff','🧑‍💼 Staff & Manager'],['tv','📺 Display'],['ins','📊 Insights']];
+ $('#nav').innerHTML=T.map(([k,l])=>`<button class="tab ${S.view===k?'on':''}" data-v="${k}">${l}</button>`).join('')}
+
+function tile(){const w=waiting(S.svc),cg=congestion(S.svc);return `<div class="stats"><div><b>${w.length}</b><small>waiting</small></div><div><b>${S.lastNow||'—'}</b><small>now serving</small></div><div><b class="${cg.now[0]}">${cg.now[2]}</b><small>${cg.now[1]}</small></div></div>`}
+
+function viewCust(){const m=S.me,w=waiting(S.svc),cg=congestion(S.svc);
+ let tk='';
+ if(m&&['WAITING','SERVING'].includes(m.st)){const p=predict(m);
+  tk=`<div class="ticket"><small>${esc(sv(m.svc).n)} · ${PRI[m.pri][0]}</small><div class="big">${m.num}</div>
+  ${m.st==='SERVING'?`<h2 style="margin:6px 0 0">Go to Counter ${m.ctr} 🎉</h2>`:`<div class="stats"><div><b>${p.ahead}</b><small>ahead</small></div><div><b>~${p.m}m</b><small>est. ${p.lo}–${p.hi} min</small></div><div><b>${S.lastNow||'—'}</b><small>now serving</small></div></div>`}</div>
+  <div class="row"><button class="btn d" id="cancel">Cancel token</button></div>`}
+ else if(m){tk=`<div class="empty">Token ${m.num}: <b>${m.st.replace('_',' ')}</b><br>Join again below.</div>`}
+ else tk='<div class="empty">No active token. Join a queue →</div>';
+ return `<section class="hero"><h1>Stop waiting.<br>Start QueueLess.</h1><p>Join queues remotely, get a live token, and know exactly when to show up.</p></section>
+ <div class="grid">
+ <div class="card"><h3>Join a queue</h3><b>${esc(sv().n)}</b> <span class="pill ${cg.now[0]}">${cg.now[2]} ${cg.now[1]}</span>
+  <p class="muted">${w.length} waiting · ${S.ctr.length} counters · avg service ${avgSvc(S.svc).toFixed(1)} min · in 30 min: ${cg.soon[2]} ${cg.soon[1]}</p>
+  <div class="row"><input id="nm" placeholder="Your name" maxlength="30"><select id="pr">${Object.entries(PRI).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select></div>
+  <button class="btn p" id="join" style="width:100%">Get my token</button>
+  <p class="muted">Priority groups jump ahead only a limited amount, so regular customers never starve.</p></div>
+ <div class="card" id="live"><h3>My token</h3>${tk}</div>
+ <div class="card"><h3>Notifications</h3>${S.notes.length?S.notes.map(n=>`<div class="note">${esc(n)}</div>`).join(''):'<div class="empty">Nothing yet</div>'}</div>
+ </div>`}
+
+function viewStaff(){recommend();const w=waiting(S.svc);
+ return `<div class="grid"><div class="card"><h3>Counters · ${esc(sv().n)}</h3>
+ ${S.ctr.map(c=>`<div class="ctr"><div class="muted">Counter ${c.id}</div><b class="t">${c.cur?c.cur.num:'Idle'}</b> ${c.cur?`<span class="muted">${esc(c.cur.name)}</span>`:''}
+ <div class="row"><button class="btn p" data-a="next" data-c="${c.id}" ${c.cur||S.paused||!w.length?'disabled':''}>Call next</button>
+ <button class="btn" data-a="done" data-c="${c.id}" ${!c.cur?'disabled':''}>Complete</button>
+ <button class="btn d" data-a="skip" data-c="${c.id}" ${!c.cur?'disabled':''}>No-show</button></div></div>`).join('')}
+ <div class="row"><button class="btn" id="pause">${S.paused?'▶ Resume queue':'⏸ Pause queue'}</button></div></div>
+ <div class="card"><h3>Queue (${w.length})</h3>${w.length?w.slice(0,8).map((t,i)=>`<div class="note">${i+1}. <b>${t.num}</b> ${esc(t.name)} <span class="muted">${PRI[t.pri][0]} · no-show risk ${noshow(t)}%</span></div>`).join(''):'<div class="empty">Queue empty</div>'}
+ ${S.rec?`<div class="ai"><b>⚡ AI recommendation</b><br>Open Counter ${S.ctr.length+1}: wait drops about ${S.rec.save} min (from ~${S.rec.cur}). Needs manager approval.<div class="row"><button class="btn p" id="appr">Approve</button></div></div>`:'<div class="ai muted">⚡ Staffing looks right for current load.</div>'}
+ <h3 style="margin-top:16px">Audit log</h3>${S.audit.map(a=>`<div class="muted">${esc(a)}</div>`).join('')||'<div class="muted">No actions yet</div>'}</div></div>`}
+function noshow(t){const w=waiting(t.svc),i=Math.max(0,w.indexOf(t));return Math.min(85,Math.round(8+i*2.5+(t.pri==='regular'?6:0)))}
+
+function viewTV(){const w=waiting(S.svc).slice(0,3);
+ return `<div class="tv"><div style="letter-spacing:.4em;opacity:.7">NOW SERVING</div>
+ <div class="now ${'pop'}" id="nowtk">${S.lastNow||'—'}</div>
+ <div style="margin:10px 0 26px;opacity:.8">${S.ctr.map(c=>`Counter ${c.id}: ${c.cur?c.cur.num:'—'}`).join(' &nbsp;·&nbsp; ')}</div>
+ <div style="opacity:.6;letter-spacing:.3em;margin-bottom:8px">NEXT</div><div class="nx">${w.map(t=>`<span>${t.num}</span>`).join('')||'<span>—</span>'}</div></div>`}
+
+function viewIns(){const h=new Date().getHours(),mx=Math.max(...PAT);const pk=PAT.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]).sort((a,b)=>a-b);
+ const f=x=>(x%12||12)+(x<12?' AM':' PM');
+ return `<div class="grid"><div class="card"><h3>KPIs</h3><div class="stats"><div><div class="kpi">${S.done}</div><small>served</small></div><div><div class="kpi">${S.noshow}</div><small>no-shows</small></div><div><div class="kpi">${avgSvc(S.svc).toFixed(1)}m</div><small>avg service</small></div></div></div>
+ <div class="card" style="grid-column:1/-1"><h3>Predicted load by hour · peak ${f(pk[0])}–${f(pk[pk.length-1]+1)}</h3>
+ <div class="bars">${PAT.map((v,i)=>`<div class="${i===h?'cur':''} ${pk.includes(i)?'pk':''}" style="height:${v/mx*100}%" title="${f(i)}"></div>`).join('')}</div>
+ <div class="axis">${PAT.map((_,i)=>`<span>${i%3===0?i:''}</span>`).join('')}</div>
+ <p class="muted">Red = predicted peak hours, bright = now. Managers use this to schedule extra staff.</p></div></div>`}
+
+function render(){nav();$('#svc').innerHTML=SV.map(s=>`<option value="${s.id}" ${s.id===S.svc?'selected':''}>${s.n}</option>`).join('');
+ $('#app').innerHTML={cust:viewCust,staff:viewStaff,tv:viewTV,ins:viewIns}[S.view]()}
+
+document.addEventListener('click',e=>{const el=e.target.closest('button');if(!el)return;
+ if(el.dataset.v){S.view=el.dataset.v;return render()}
+ if(el.id==='th'){const r=document.documentElement;r.dataset.theme=(r.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))==='dark'?'light':'dark';return}
+ if(el.id==='join')return join($('#nm').value.trim(),$('#pr').value);
+ if(el.id==='cancel'){S.me.st='CANCELLED';note('Token cancelled');return render()}
+ if(el.id==='pause'){S.paused=!S.paused;log(S.paused?'Queue paused':'Queue resumed');return render()}
+ if(el.id==='appr'){S.ctr.push({id:S.ctr.length+1,cur:null});log('Manager approved Counter '+S.ctr.length);return render()}
+ if(el.dataset.a){const c=S.ctr.find(x=>x.id==el.dataset.c);({next:callNext,done:x=>finish(x,'DONE'),skip:x=>finish(x,'NO_SHOW')})[el.dataset.a](c);render()}});
+$('#svc').addEventListener('change',e=>{S.svc=e.target.value;render()});
+
+// seed + demo autopilot (other customers arriving, counters working)
+for(let i=0;i<7;i++)mk('gen',rnd(NAMES),i===3?'elderly':'regular');
+SV.slice(1).forEach(s=>{for(let i=0;i<3;i++)mk(s.id,rnd(NAMES),'regular')});
+setInterval(()=>{const a=document.activeElement;if(a&&/INPUT|SELECT/.test(a.tagName))return;
+ if(Math.random()<.55)mk(rnd(SV).id,rnd(NAMES),Math.random()<.12?'elderly':'regular');
+ if(S.auto&&!S.paused){const keep=S.svc;SV.forEach(s=>{S.svc=s.id;S.ctr.forEach(c=>{if(c.cur&&c.cur.svc===s.id&&Math.random()<.45&&c.cur!==S.me)finish(c,'DONE');else if(!c.cur&&Math.random()<.6)callNext(c)})});S.svc=keep}
+ if(S.me&&S.me.st==='SERVING'&&Math.random()<.3){const c=S.ctr.find(x=>x.cur===S.me);if(c)finish(c,'DONE')}
+ watch();render()},4000);
+render();
+</script>
+</body>
+</html>
